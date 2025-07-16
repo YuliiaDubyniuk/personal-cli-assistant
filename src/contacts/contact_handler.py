@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from contacts.contacts import ContactBook, Record, Phone, Name, Birthday
+from contacts.contacts import ContactBook, Record, Phone, Name, Birthday, Address, Email
 from decorators import input_error
 import utilities
 from notes.notes import NoteBook
@@ -51,7 +51,7 @@ def add_contact_address(book: ContactBook, args: list):
     contact_name, address = args[0], " ".join(args[1:])
     if contact_name in book.data:
         record = book.find(contact_name)
-        record.add_address(address)
+        record.add_address(Address(address))
         print(f"Address added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
@@ -61,7 +61,7 @@ def add_contact_email(book: ContactBook, args: list):
     contact_name, email = args[0], args[1]
     if contact_name in book.data:
         record = book.find(contact_name)
-        record.add_email(email)
+        record.add_email(Email(email))
         print(f"Email added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
