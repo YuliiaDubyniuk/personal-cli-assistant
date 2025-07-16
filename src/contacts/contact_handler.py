@@ -2,6 +2,8 @@ from datetime import datetime
 from pathlib import Path
 from contacts.contacts import ContactBook, Record, Phone, Name, Birthday
 from decorators import input_error
+import utilities
+from notes.notes import NoteBook
 
 
 def add_contact(book: ContactBook, args: list):
@@ -43,60 +45,62 @@ def show_upcoming_birthdays(book: ContactBook):
 
 
 @input_error
-def handle_contacts_command(book: ContactBook, command: str, args: list, filename: Path):
+def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, command: str, args: list, filename: Path):
     """Central command processor with error handling via a decorator."""
     match command:
         case "back":
-            print("What do you want to work with? contact | note")
+            utilities.print_main_help_menu()
             return "back"
+        case "exit":
+            return utilities.exit_assistant(contactbook, notebook, filename)
         case "add":
-            add_contact(book, args)
+            add_contact(contactbook, args)
         case "change":
             # update phone for provided name to the new one
             contact_name, old_phone, new_phone = args[0], args[1], Phone(
                 args[2])
-            if contact_name in book.data:
-                record = book.find(contact_name)
+            if contact_name in contactbook.data:
+                record = contactbook.find(contact_name)
                 record.edit_phone(old_phone, new_phone)
             else:
                 raise KeyError()
         case "remove":
             # remove contact phone (if phone is provided) or delete contact by name
             contact_name = args[0]
-            if contact_name in book.data:
+            if contact_name in contactbook.data:
                 if len(args) > 1:
                     phone = args[1]
-                    record = book.find(contact_name)
+                    record = contactbook.find(contact_name)
                     record.remove_phone(phone)
                 else:
-                    book.delete(contact_name)
+                    contactbook.delete(contact_name)
             else:
                 raise KeyError()
         case "phone":
             # print contact's data for provided name if record exists
             contact_name = args[0]
-            record = book.find(contact_name)
+            record = contactbook.find(contact_name)
             if record:
                 print(
                     f"{contact_name}'s phones: {', '.join(str(phone) for phone in record.phones)}")
 
         case "all":
             # return all records in the address book
-            if book.data:
-                for record in book.data.values():
+            if contactbook.data:
+                for record in contactbook.data.values():
                     print(record)
             else:
                 print("There are no records in your address book. Start adding.")
         case "add-birthday":
-            add_contact_birthday(book, args)
+            add_contact_birthday(contactbook, args)
         case "show-birthday":
             contact_name = args[0]
-            record = book.find(contact_name)
+            record = contactbook.find(contact_name)
             birthday = record.birthday
             print(
                 f"{contact_name}'s birthday is {birthday}" if birthday else f"{contact_name}'s birthday is not set.")
 
         case "birthdays":
-            show_upcoming_birthdays(book)
+            show_upcoming_birthdays(contactbook)
         case _:
             print("Invalid command.")
