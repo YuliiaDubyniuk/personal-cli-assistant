@@ -95,18 +95,6 @@ class Record:
 class ContactBook(UserDict):
     """A contact management class that stores, retrieves, updates, and deletes contact records"""
 
-    def save_data(self, filename=Path):
-        with open(filename, "wb") as f:
-            pickle.dump(self, f)
-
-    @classmethod
-    def load_data(cls, filename=Path):
-        try:
-            with open(filename, "rb") as f:
-                return pickle.load(f)
-        except FileNotFoundError:
-            return cls()
-
     def add_record(self, record: Record):
         self.data[record.name.value] = record
         print(
