@@ -46,7 +46,22 @@ def print_main_help_menu():
 
 
 def print_contacts_help_menu():
-    pass
+    print(
+        "\nAvailable contact commands:\n"
+        "  • add <name> <phone>               — add a new contact or phone to existing\n"
+        "  • add-birthday <name> <DD.MM.YYYY> — quick add or overwrite birthday\n"
+        "  • add-address <name> <address>     — quick add or overwrite address\n"
+        "  • add-email <name> <email>         — quick add or overwrite email\n"
+        "  • update <name>                    — interactive edit (phone, email, address, birthday)\n"
+        "  • remove <name>                    — remove phone/email/address/birthday or entire contact\n"
+        "  • phone <name>                     — show contact's phone numbers\n"
+        "  • show-birthday <name>             — show contact's birthday\n"
+        "  • birthdays [days]                 — show birthdays in the next N days (default is 7)\n"
+        "  • all                              — show all contacts\n"
+        "  • help                             — show this contact command list again\n"
+        "  • back                             — return to the main menu\n"
+        "  • exit                             — save and exit assistant\n"
+    )
 
 
 def print_notes_help_menu():
