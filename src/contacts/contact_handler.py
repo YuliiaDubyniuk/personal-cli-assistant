@@ -31,6 +31,8 @@ def add_contact_birthday(book: ContactBook, args: list):
 
 def show_upcoming_birthdays(book: ContactBook, days: int = 7):
     """Return list of contacts that have birthday in the next 7 days."""
+    if days is None:
+        days = 7
     upcoming_birthdays = book.get_upcoming_birthdays(days)
     if not upcoming_birthdays:
         print(f"There are no birthdays in the next {days} days.")
@@ -121,7 +123,7 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                 f"{contact_name}'s birthday is {birthday}" if birthday else f"{contact_name}'s birthday is not set.")
 
         case "birthdays":
-            days = int(args[0]) if args else 7
+            days = int(args[0]) if args else None
             show_upcoming_birthdays(contactbook, days)
         
         case "add-address":

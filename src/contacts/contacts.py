@@ -45,7 +45,22 @@ class Birthday(Field):
 
     def __str__(self):
         return self.value.strftime("%d.%m.%Y")
+    
+class Address(Field):
+    """Field that stores and validates address."""
+    def __init__(self, value:str):
+        if len(value.strip()) < 5:
+            raise ValueError("Address must contain at least 5 characters.")
+        super().__init__(value.strip())
 
+class Email(Field):
+    """Field that stores and validates an email address."""
+    def __init__(self, value: str):
+        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.match(pattern, value.strip()):
+            raise ValueError("Invalid email format")
+        super().__init__(value.strip())
+        
 
 class Record:
     """Represents a single contact record in the contacts book and provides methods to manage its details"""
@@ -97,18 +112,15 @@ class Record:
         print(f"{self.name.value}'s birthday has been added.")
 
     def add_address(self, address: str):
-        if len(address.strip()) < 5:
-            raise ValueError("Address must contain at least 5 characters.")
-        self.address = address.strip()
+        self.address = Address(address)
+        print(f"Address for {self.name.value} has been added.")
 
     def edit_address(self, address: str):
         self.add_address(address)
 
     def add_email(self, email: str):
-        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        if not re.match(pattern, email.strip()):
-            raise ValueError("Invalid email format.")
-        self.email = email.strip()
+        self.email = Email(email)
+        print(f"Email for {self.name.value} has been added.")
 
     def edit_email(self, email: str):
         self.add_email(email)
