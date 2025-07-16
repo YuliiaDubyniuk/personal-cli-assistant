@@ -29,13 +29,13 @@ def add_contact_birthday(book: ContactBook, args: list):
     record.add_birthday(b_day)
 
 
-def show_upcoming_birthdays(book: ContactBook):
+def show_upcoming_birthdays(book: ContactBook, days: int = 7):
     """Return list of contacts that have birthday in the next 7 days."""
-    upcoming_birthdays = book.get_upcoming_birthdays()
+    upcoming_birthdays = book.get_upcoming_birthdays(days)
     if not upcoming_birthdays:
-        print("There are no birthdays in the next 7 days.")
+        print(f"There are no birthdays in the next {days} days.")
     else:
-        print("Here are the upcoming birthdays in the next 7 days:")
+        print(f"Here are the upcoming birthdays in the next {days} days:")
         for record in upcoming_birthdays:
             name = record.name.value
             dob = record.birthday.value.date()
@@ -43,6 +43,26 @@ def show_upcoming_birthdays(book: ContactBook):
             print(
                 f"{name}'s birthday is {upcoming_bday.strftime('%d.%m.%Y')}")
 
+
+def add_contact_address(book: ContactBook, args: list):
+    """Add or update address for contact"""
+    contact_name, address = args[0], " ".join(args[1:])
+    if contact_name in book.data:
+        record = book.find(contact_name)
+        record.add_address(address)
+        print(f"Address added/updated for {contact_name}.")
+    else:
+        raise KeyError(f"Contact {contact_name} not found.")
+    
+def add_contact_email(book: ContactBook, args: list):
+    """Add or update email for contact"""
+    contact_name, email = args[0], args[1]
+    if contact_name in book.data:
+        record = book.find(contact_name)
+        record.add_email(email)
+        print(f"Email added/updated for {contact_name}.")
+    else:
+        raise KeyError(f"Contact {contact_name} not found.")
 
 @input_error
 def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, command: str, args: list, filename: Path):
@@ -101,6 +121,14 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                 f"{contact_name}'s birthday is {birthday}" if birthday else f"{contact_name}'s birthday is not set.")
 
         case "birthdays":
-            show_upcoming_birthdays(contactbook)
+            days = int(args[0]) if args else 7
+            show_upcoming_birthdays(contactbook, days)
+        
+        case "add-address":
+            add_contact_address(contactbook, args)
+
+        case "add-email":
+            add_contact_email(contactbook, args)
+
         case _:
             print("Invalid command.")

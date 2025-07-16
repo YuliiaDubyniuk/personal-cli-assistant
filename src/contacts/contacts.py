@@ -1,7 +1,8 @@
 import pickle
 from pathlib import Path
 from collections import UserDict
-from datetime import datetime
+from datetime import datetime, timedelta
+import re
 
 
 class Field:
@@ -53,11 +54,15 @@ class Record:
         self.name = Name(name)
         self.phones = []
         self.birthday = None
+        self.address = None
+        self.email = None
 
     def __str__(self):
         birthday_str = f"contact birthday: {self.birthday}" if self.birthday else "contact birthday: Not set"
         phones_str = '; '.join(p.value for p in self.phones)
-        return f"Contact name: {self.name.value}, {birthday_str}, phones: {phones_str}"
+        address_str = f"address: {self.address}" if self.address else "address: Not set"
+        email_str = f"email: {self.email}" if self.email else "email: Not set"
+        return f"Contact name: {self.name.value}, {birthday_str}, phones: {phones_str}, {address_str}, {email_str}"
 
     def add_phone(self, phone: str):
         self.phones.append(phone)
@@ -91,6 +96,22 @@ class Record:
         self.birthday = b_day_date
         print(f"{self.name.value}'s birthday has been added.")
 
+    def add_address(self, address: str):
+        if len(address.strip()) < 5:
+            raise ValueError("Address must contain at least 5 characters.")
+        self.address = address.strip()
+
+    def edit_address(self, address: str):
+        self.add_address(address)
+
+    def add_email(self, email: str):
+        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.match(pattern, email.strip()):
+            raise ValueError("Invalid email format.")
+        self.email = email.strip()
+
+    def edit_email(self, email: str):
+        self.add_email(email)
 
 class ContactBook(UserDict):
     """A contact management class that stores, retrieves, updates, and deletes contact records"""
@@ -113,14 +134,14 @@ class ContactBook(UserDict):
         else:
             raise KeyError()
 
-    def get_upcoming_birthdays(self):
+    def get_upcoming_birthdays(self, days: int = 7):
         """
         Return a list of contacts with birthdays in the next 7 days
         """
         current_date = datetime.today().date()
         current_year = current_date.year
 
-        next_week_birthdays = []
+        upcoming_birthdays = []
 
         for record in self.data.values():
             if not record.birthday:
@@ -128,10 +149,12 @@ class ContactBook(UserDict):
             dob = record.birthday.value.date()
             current_birthday = dob.replace(year=current_year)
 
-            if current_birthday > current_date:
-                days_to_birthday = (current_birthday - current_date).days
-                if days_to_birthday <= 7:
-                    # user has a birthday in the next 7 days
-                    next_week_birthdays.append(record)
+            if current_birthday < current_date:
+                current_birthday = dob.replace(year=current_year + 1)
 
-        return next_week_birthdays
+            days_to_birthday = (current_birthday - current_date).days
+
+            if 0 < days_to_birthday <= days:
+                upcoming_birthdays.append(record)
+
+        return upcoming_birthdays
