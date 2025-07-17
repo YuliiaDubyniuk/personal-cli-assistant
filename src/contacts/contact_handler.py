@@ -181,13 +181,13 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                     case _:
                         print("Unknown field. Try again.")
 
-        case "phone":
-            # print contact's data for provided name if record exists
+        case "show":
+            # print full contact info
+            if not args:
+                raise ValueError("Contact name is required for 'show' command.")
             contact_name = args[0]
             record = contactbook.find(contact_name)
-            if record:
-                print(
-                    f"{contact_name}'s phones: {', '.join(str(phone) for phone in record.phones)}")
+            print(record)
 
         case "all":
             # return all records in the address book
