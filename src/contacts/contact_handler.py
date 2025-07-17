@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from contacts.contacts import ContactBook, Record, Phone, Name, Birthday
 from decorators import input_error
-import utilities
+import src.utilities as utilities
 from notes.notes import NoteBook
 
 
@@ -55,7 +55,8 @@ def add_contact_address(book: ContactBook, args: list):
         print(f"Address added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
-    
+
+
 def add_contact_email(book: ContactBook, args: list):
     """Add or update email for contact"""
     contact_name, email = args[0], args[1]
@@ -65,6 +66,7 @@ def add_contact_email(book: ContactBook, args: list):
         print(f"Email added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
+
 
 @input_error
 def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, command: str, args: list, filename: Path):
@@ -95,12 +97,15 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
             record = contactbook.find(contact_name)
 
             while True:
-                field = input("What do you want to update? (phone/email/address/birthday or 'back' to cancel): ").strip().lower()
+                field = input(
+                    "What do you want to update? (phone/email/address/birthday or 'back' to cancel): ").strip().lower()
 
                 match field:
                     case "phone":
-                        old_phone = input("Enter the old phone number: ").strip()
-                        new_phone = Phone(input("Enter the new phone number: ").strip())
+                        old_phone = input(
+                            "Enter the old phone number: ").strip()
+                        new_phone = Phone(
+                            input("Enter the new phone number: ").strip())
                         record.edit_phone(old_phone, new_phone)
                         break
                     case "email":
@@ -112,7 +117,8 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                         record.edit_address(new_address)
                         break
                     case "birthday":
-                        new_birthday = Birthday(input("Enter the new birthday (DD.MM.YYYY): ").strip())
+                        new_birthday = Birthday(
+                            input("Enter the new birthday (DD.MM.YYYY): ").strip())
                         record.add_birthday(new_birthday)
                         break
                     case "back":
@@ -131,11 +137,13 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
             record = contactbook.find(contact_name)
 
             while True:
-                field = input("What do you want to remove? (phone/email/address/birthday/contact or 'back' to cancel): ").strip().lower()
+                field = input(
+                    "What do you want to remove? (phone/email/address/birthday/contact or 'back' to cancel): ").strip().lower()
 
                 match field:
                     case "phone":
-                        phone = input("Enter the phone number to remove: ").strip()
+                        phone = input(
+                            "Enter the phone number to remove: ").strip()
                         record.remove_phone(phone)
                         break
                     case "email":
@@ -161,7 +169,8 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                         break
                     case "contact":
                         print(f"Full record:\n{record}")
-                        confirm = input(f"Are you sure you want to delete {contact_name}? (yes/no): ").strip().lower()
+                        confirm = input(
+                            f"Are you sure you want to delete {contact_name}? (yes/no): ").strip().lower()
                         if confirm == "yes":
                             contactbook.delete(contact_name)
                         else:
@@ -172,7 +181,7 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                         break
                     case _:
                         print("Unknown field. Try again.")
-            
+
         case "phone":
             # print contact's data for provided name if record exists
             contact_name = args[0]
@@ -180,7 +189,7 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
             if record:
                 print(
                     f"{contact_name}'s phones: {', '.join(str(phone) for phone in record.phones)}")
-                
+
         case "all":
             # return all records in the address book
             if contactbook.data:
@@ -195,10 +204,9 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
             birthday = record.birthday
             print(
                 f"{contact_name}'s birthday is {birthday}" if birthday else f"{contact_name}'s birthday is not set.")
-        
+
         case "birthdays":
             days = int(args[0]) if args else None
             show_upcoming_birthdays(contactbook, days)
-        
         case _:
             print("Invalid command.")

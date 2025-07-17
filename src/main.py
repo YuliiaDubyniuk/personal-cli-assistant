@@ -4,7 +4,7 @@ from contacts.contact_handler import handle_contact_commands
 from contacts.contacts import ContactBook
 from notes.notes import NoteBook
 from notes.note_handler import handle_note_commands
-import utilities
+import src.utilities as utilities
 from decorators import input_error
 
 
@@ -35,6 +35,7 @@ def main():
         result = handle_commands(
             contactbook, notebook, command, args, cli_args.file)
         if result == "exit":
+            utilities.exit_assistant(contactbook, notebook, cli_args.file)
             break
 
 
@@ -55,6 +56,8 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
                     contactbook, notebook, command, args, filename)
                 if result == "back":
                     break
+                elif result == "exit":
+                    return "exit"
         case "notes":
             while True:
                 utilities.print_notes_help_menu()
@@ -64,8 +67,10 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
                     contactbook, notebook, command, args, filename)
                 if result == "back":
                     break
+                elif result == "exit":
+                    return "exit"
         case "exit":
-            return utilities.exit_assistant(contactbook, notebook, filename)
+            return "exit"
         case _:
             print("Invalid command.")
 
