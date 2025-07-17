@@ -1,7 +1,7 @@
 from datetime import datetime
 # from rich.console import Console
 from contacts.contacts import Field
-import src.utilities as utilities
+import utilities 
 
 # rich_console = Console()
 

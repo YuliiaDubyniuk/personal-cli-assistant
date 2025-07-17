@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from contacts.contacts import ContactBook, Record, Phone, Name, Birthday
 from decorators import input_error
-import src.utilities as utilities
+import utilities
 from notes.notes import NoteBook
 
 
@@ -52,7 +52,6 @@ def add_contact_address(book: ContactBook, args: list):
     if contact_name in book.data:
         record = book.find(contact_name)
         record.add_address(address)
-        print(f"Address added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
 
@@ -63,7 +62,6 @@ def add_contact_email(book: ContactBook, args: list):
     if contact_name in book.data:
         record = book.find(contact_name)
         record.add_email(email)
-        print(f"Email added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
 
@@ -110,11 +108,11 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                         break
                     case "email":
                         new_email = input("Enter the new email: ").strip()
-                        record.edit_email(new_email)
+                        record.add_email(new_email)
                         break
                     case "address":
                         new_address = input("Enter the new address: ").strip()
-                        record.edit_address(new_address)
+                        record.add_address(new_address)
                         break
                     case "birthday":
                         new_birthday = Birthday(
@@ -182,13 +180,13 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                     case _:
                         print("Unknown field. Try again.")
 
-        case "phone":
-            # print contact's data for provided name if record exists
+        case "show":
+            # print full contact info
+            if not args:
+                raise ValueError("Contact name is required for 'show' command.")
             contact_name = args[0]
             record = contactbook.find(contact_name)
-            if record:
-                print(
-                    f"{contact_name}'s phones: {', '.join(str(phone) for phone in record.phones)}")
+            print(record)
 
         case "all":
             # return all records in the address book

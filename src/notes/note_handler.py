@@ -4,7 +4,7 @@ from rich.prompt import Prompt
 from decorators import input_error
 from notes.notes import NoteBook, Note, Title, Text
 from contacts.contacts import ContactBook
-import src.utilities as utilities
+import utilities
 
 # rich_console = Console()
 
