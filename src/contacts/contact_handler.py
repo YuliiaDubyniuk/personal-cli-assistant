@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from contacts.contacts import ContactBook, Record, Phone, Name, Birthday
 from decorators import input_error
-import utilities
+import utils
 from notes.notes import NoteBook
 
 
@@ -55,7 +55,8 @@ def add_contact_address(book: ContactBook, args: list):
         print(f"Address added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
-    
+
+
 def add_contact_email(book: ContactBook, args: list):
     """Add or update email for contact"""
     contact_name, email = args[0], args[1]
@@ -66,15 +67,16 @@ def add_contact_email(book: ContactBook, args: list):
     else:
         raise KeyError(f"Contact {contact_name} not found.")
 
+
 @input_error
 def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, command: str, args: list, filename: Path):
     """Central command processor with error handling via a decorator."""
     match command:
         case "back":
-            utilities.print_main_help_menu()
+            utils.print_main_help_menu()
             return "back"
         case "exit":
-            return utilities.exit_assistant(contactbook, notebook, filename)
+            return utils.exit_assistant(contactbook, notebook, filename)
         case "add":
             add_contact(contactbook, args)
         case "change":
@@ -125,7 +127,7 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
         case "birthdays":
             days = int(args[0]) if args else None
             show_upcoming_birthdays(contactbook, days)
-        
+
         case "add-address":
             add_contact_address(contactbook, args)
 

@@ -1,14 +1,19 @@
+from utils import rich_console
+
+
 def input_error(func):
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except ValueError as e:
-            print(str(e).strip("'"))
+            error_msg = str(e).replace('"', '')
+            rich_console.print(f"[bold red]{str(error_msg)}[/bold red]")
         except IndexError:
-            print("Missing required arguments. Please provide all the arguments.")
+            rich_console.print(
+                "[bold red]Missing required arguments. Please provide all the arguments.[/bold red]")
         except KeyError:
-            print("Record with given name doesn't exist.")
+            rich_console.print(
+                "[bold red]Record with given name doesn't exist.[/bold red]")
         except Exception as e:
-            print(f"Unknown error: {e}")
-
+            rich_console.print(f"[bold red]Unknown error: {e}[/bold red]")
     return inner
