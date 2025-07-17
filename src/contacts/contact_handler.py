@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from contacts.contacts import ContactBook, Record, Phone, Name, Birthday
 from decorators import input_error
-import utils
+import src.utilities as utilities
 from notes.notes import NoteBook
 
 
@@ -73,10 +73,10 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
     """Central command processor with error handling via a decorator."""
     match command:
         case "back":
-            utils.print_main_help_menu()
+            utilities.print_main_help_menu()
             return "back"
         case "exit":
-            return utils.exit_assistant(contactbook, notebook, filename)
+            return utilities.exit_assistant(contactbook, notebook, filename)
         case "add":
             add_contact(contactbook, args)
         case "change":

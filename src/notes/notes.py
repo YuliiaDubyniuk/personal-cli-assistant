@@ -1,7 +1,7 @@
 from datetime import datetime
 # from rich.console import Console
 from contacts.contacts import Field
-import utils
+import src.utilities as utilities
 
 # rich_console = Console()
 
@@ -34,7 +34,7 @@ class Note:
 
     def __str__(self):
         # Create the table for a single note
-        table = utils.create_table(title="Note Details")
+        table = utilities.create_table(title="Note Details")
         table.add_column("Field", no_wrap=True)
         table.add_column("Value")
 
@@ -42,8 +42,8 @@ class Note:
         table.add_row("Date", self.date)
         table.add_row("Text", self.text.value)
 
-        with utils.rich_console.capture() as capture:
-            utils.rich_console.print(table)
+        with utilities.rich_console.capture() as capture:
+            utilities.rich_console.print(table)
         return capture.get()
 
 
@@ -55,15 +55,16 @@ class NoteBook:
 
     def add_note(self, note: Note):
         self.notes.append(note)
-        utils.rich_console.print(
+        utilities.rich_console.print(
             f"[bold green]Note '{note.title}' added successfully.[/bold green]")
 
     def show_all_notes(self):
         if not self.notes:
-            utils.rich_console.print("[bold red]No notes found.[/bold red]")
+            utilities.rich_console.print(
+                "[bold red]No notes found.[/bold red]")
             return
 
-        table = utils.create_table("All Notes")
+        table = utilities.create_table("All Notes")
         table.add_column("ID", justify="center", no_wrap=True)
         table.add_column("Title", justify="left", no_wrap=True)
         table.add_column("Date", justify="center", no_wrap=True)
@@ -78,14 +79,14 @@ class NoteBook:
                 formatted_text
             )
 
-        utils.rich_console.print(table)
+        utilities.rich_console.print(table)
 
     def delete_by_id(self, note_id: int):
         removed_note = self.notes.pop(note_id - 1)
-        utils.rich_console.print(
+        utilities.rich_console.print(
             f"[bold green]Note '{removed_note.title}' deleted successfully.[/bold green]")
 
     def find_note_by_id(self):
-        note_id = utils.get_valid_id(
+        note_id = utilities.get_valid_id(
             "Provide ID of the note you want to update", len(self.notes))
         return self.notes[note_id - 1]

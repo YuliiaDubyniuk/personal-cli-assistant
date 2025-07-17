@@ -4,7 +4,7 @@ from contacts.contact_handler import handle_contact_commands
 from contacts.contacts import ContactBook
 from notes.notes import NoteBook
 from notes.note_handler import handle_note_commands
-import utils
+import src.utilities as utilities
 from decorators import input_error
 
 
@@ -20,22 +20,22 @@ def main():
     cli_args = parser.parse_args()
 
     # Load Assistant data from file or create new contacts/notes objects
-    data = utils.load_data(cli_args.file)
+    data = utilities.load_data(cli_args.file)
     contactbook = data.get("contacts", ContactBook())
     notebook = data.get("notes", NoteBook())
 
     # Welcome user and show main available commands
     print("Welcome to the assistant bot!")
-    utils.print_main_help_menu()
+    utilities.print_main_help_menu()
 
     while True:
         user_input = input("Enter a command: ")
-        command, *args = utils.parse_input(user_input)
+        command, *args = utilities.parse_input(user_input)
 
         result = handle_commands(
             contactbook, notebook, command, args, cli_args.file)
         if result == "exit":
-            utils.exit_assistant(contactbook, notebook, cli_args.file)
+            utilities.exit_assistant(contactbook, notebook, cli_args.file)
             break
 
 
@@ -46,13 +46,13 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
         case "hello":
             print("How can I help you? You can type 'help' to see available commands.")
         case "help":
-            utils.print_main_help_menu()
+            utilities.print_main_help_menu()
         case "contacts":
             while True:
-                utils.print_contacts_help_menu()
+                utilities.print_contacts_help_menu()
                 user_input = input(
                     "Enter command to handle your ContactBook: ")
-                command, *args = utils.parse_input(user_input)
+                command, *args = utilities.parse_input(user_input)
                 result = handle_contact_commands(
                     contactbook, notebook, command, args, filename)
                 if result == "back":
@@ -61,9 +61,9 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
                     return "exit"
         case "notes":
             while True:
-                utils.print_notes_help_menu()
+                utilities.print_notes_help_menu()
                 user_input = input("Enter command to handle your NoteBook: ")
-                command, *args = utils.parse_input(user_input)
+                command, *args = utilities.parse_input(user_input)
                 result = handle_note_commands(
                     contactbook, notebook, command, args, filename)
                 if result == "back":
