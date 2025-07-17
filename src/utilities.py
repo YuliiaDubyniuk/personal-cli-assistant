@@ -104,36 +104,51 @@ def exit_assistant(contactbook: ContactBook, notebook: NoteBook, filename):
 
 
 def print_main_help_menu():
-    print(
-        "\nChoose one of available commands\n"
-        "  • contacts  — manage your contacts\n"
-        "  • notes     — manage your notes\n"
-        "  • help     — show this help menu\n"
-        "  • exit     — exit the assistant\n"
-    )
+    table = create_help_table()
+    table.title = "[bold blue]Main Commands[/bold blue]"
+    
+    table.add_row("contacts", "Manage your contacts")
+    table.add_row("notes", "Manage your notes")
+    table.add_row("help", "Show this help menu")
+    table.add_row("exit", "Exit the assistant")
+
+    rich_console.print(table)
 
 
 def print_contacts_help_menu():
-    print(
-        "\nAvailable contact commands:\n"
-        "  • add <name> <phone>               — add a new contact or phone to existing\n"
-        "  • add-birthday <name> <DD.MM.YYYY> — quick add or overwrite birthday\n"
-        "  • add-address <name> <address>     — quick add or overwrite address\n"
-        "  • add-email <name> <email>         — quick add or overwrite email\n"
-        "  • update <name>                    — interactive edit (phone, email, address, birthday)\n"
-        "  • remove <name>                    — remove phone/email/address/birthday or entire contact\n"
-        "  • phone <name>                     — show contact's phone numbers\n"
-        "  • show-birthday <name>             — show contact's birthday\n"
-        "  • birthdays [days]                 — show birthdays in the next N days (default is 7)\n"
-        "  • all                              — show all contacts\n"
-        "  • help                             — show this contact command list again\n"
-        "  • back                             — return to the main menu\n"
-        "  • exit                             — save and exit assistant\n"
-    )
+    table = create_help_table()
+    table.title = "[bold blue]Contact Commands[/bold blue]"
+
+    table.add_row("add <name> <phone>", "Add a new contact or phone to existing")
+    table.add_row("add-birthday <name> <DD.MM.YYYY>", "Add or overwrite birthday")
+    table.add_row("add-address <name> <address>", "Add or overwrite address")
+    table.add_row("add-email <name> <email>", "Add or overwrite email")
+    table.add_row("update <name>", "Interactive edit (phone, email, address, birthday)")
+    table.add_row("remove <name>", "Remove phone/email/address/birthday or entire contact")
+    table.add_row("show <name>", "Print full contact info")
+    table.add_row("show-birthday <name>", "Show contact's birthday")
+    table.add_row("birthdays [days]", "Show birthdays in the next N days (default is 7)")
+    table.add_row("all", "Show all contacts")
+    table.add_row("help", "Show this contact command list again")
+    table.add_row("back", "Return to the main menu")
+    table.add_row("exit", "Save and exit assistant")
+
+    rich_console.print(table)
 
 
 def print_notes_help_menu():
-    pass
+    table = create_help_table()
+    table.title = "[bold blue]Note Commands[/bold blue]"
+
+    table.add_row("add", "Add a new note")
+    table.add_row("update", "Update an existing note")
+    table.add_row("delete", "Delete a note")
+    table.add_row("all", "Show all notes")
+    table.add_row("help", "Show this note command list again")
+    table.add_row("back", "Return to the main menu")
+    table.add_row("exit", "Save and exit assistant")
+
+    rich_console.print(table)
 
 
 def get_validated_input(prompt_text: str, field_class):
