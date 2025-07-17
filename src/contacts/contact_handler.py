@@ -73,33 +73,115 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
     """Central command processor with error handling via a decorator."""
     match command:
         case "back":
-            utilities.print_main_help_menu()
             return "back"
+        case "help":
+            utilities.print_contacts_help_menu()
         case "exit":
             return utilities.exit_assistant(contactbook, notebook, filename)
         case "add":
             add_contact(contactbook, args)
-        case "change":
+        case "add-birthday":
+            add_contact_birthday(contactbook, args)
+        case "add-address":
+            add_contact_address(contactbook, args)
+        case "add-email":
+            add_contact_email(contactbook, args)
+
+        case "update":
             # update phone for provided name to the new one
-            contact_name, old_phone, new_phone = args[0], args[1], Phone(
-                args[2])
-            if contact_name in contactbook.data:
-                record = contactbook.find(contact_name)
-                record.edit_phone(old_phone, new_phone)
-            else:
-                raise KeyError()
+            contact_name = args[0]
+
+            if contact_name not in contactbook.data:
+                raise KeyError(f"Contact {contact_name} not found.")
+
+            record = contactbook.find(contact_name)
+
+            while True:
+                field = input(
+                    "What do you want to update? (phone/email/address/birthday or 'back' to cancel): ").strip().lower()
+
+                match field:
+                    case "phone":
+                        old_phone = input(
+                            "Enter the old phone number: ").strip()
+                        new_phone = Phone(
+                            input("Enter the new phone number: ").strip())
+                        record.edit_phone(old_phone, new_phone)
+                        break
+                    case "email":
+                        new_email = input("Enter the new email: ").strip()
+                        record.edit_email(new_email)
+                        break
+                    case "address":
+                        new_address = input("Enter the new address: ").strip()
+                        record.edit_address(new_address)
+                        break
+                    case "birthday":
+                        new_birthday = Birthday(
+                            input("Enter the new birthday (DD.MM.YYYY): ").strip())
+                        record.add_birthday(new_birthday)
+                        break
+                    case "back":
+                        print("Update cancelled.")
+                        break
+                    case _:
+                        print("Unknown field. Try again.")
+
         case "remove":
             # remove contact phone (if phone is provided) or delete contact by name
             contact_name = args[0]
-            if contact_name in contactbook.data:
-                if len(args) > 1:
-                    phone = args[1]
-                    record = contactbook.find(contact_name)
-                    record.remove_phone(phone)
-                else:
-                    contactbook.delete(contact_name)
-            else:
-                raise KeyError()
+
+            if contact_name not in contactbook.data:
+                raise KeyError(f"Contact {contact_name} not found.")
+
+            record = contactbook.find(contact_name)
+
+            while True:
+                field = input(
+                    "What do you want to remove? (phone/email/address/birthday/contact or 'back' to cancel): ").strip().lower()
+
+                match field:
+                    case "phone":
+                        phone = input(
+                            "Enter the phone number to remove: ").strip()
+                        record.remove_phone(phone)
+                        break
+                    case "email":
+                        if record.email:
+                            record.email = None
+                            print(f"Email removed for {contact_name}.")
+                        else:
+                            print(f"No email set for {contact_name}.")
+                        break
+                    case "address":
+                        if record.address:
+                            record.address = None
+                            print(f"Address removed for {contact_name}.")
+                        else:
+                            print(f"No address set for {contact_name}.")
+                        break
+                    case "birthday":
+                        if record.birthday:
+                            record.birthday = None
+                            print(f"Birthday removed for {contact_name}.")
+                        else:
+                            print(f"No birthday set for {contact_name}.")
+                        break
+                    case "contact":
+                        print(f"Full record:\n{record}")
+                        confirm = input(
+                            f"Are you sure you want to delete {contact_name}? (yes/no): ").strip().lower()
+                        if confirm == "yes":
+                            contactbook.delete(contact_name)
+                        else:
+                            print("Deletion cancelled.")
+                        break
+                    case "back":
+                        print("Remove cancelled.")
+                        break
+                    case _:
+                        print("Unknown field. Try again.")
+
         case "phone":
             # print contact's data for provided name if record exists
             contact_name = args[0]
@@ -115,8 +197,7 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                     print(record)
             else:
                 print("There are no records in your address book. Start adding.")
-        case "add-birthday":
-            add_contact_birthday(contactbook, args)
+
         case "show-birthday":
             contact_name = args[0]
             record = contactbook.find(contact_name)
@@ -127,12 +208,5 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
         case "birthdays":
             days = int(args[0]) if args else None
             show_upcoming_birthdays(contactbook, days)
-
-        case "add-address":
-            add_contact_address(contactbook, args)
-
-        case "add-email":
-            add_contact_email(contactbook, args)
-
         case _:
             print("Invalid command.")

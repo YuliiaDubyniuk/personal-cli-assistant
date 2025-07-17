@@ -48,10 +48,9 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
         case "help":
             utilities.print_main_help_menu()
         case "contacts":
+            print("Type 'help' to see available contact commands.")
             while True:
-                utilities.print_contacts_help_menu()
-                user_input = input(
-                    "Enter command to handle your ContactBook: ")
+                user_input = input("ContactBook > ")
                 command, *args = utilities.parse_input(user_input)
                 result = handle_contact_commands(
                     contactbook, notebook, command, args, filename)
