@@ -1,4 +1,4 @@
-from src.utilities import rich_console
+from utilities import rich_console
 
 
 def input_error(func):

@@ -5,6 +5,17 @@ from contacts.contacts import ContactBook
 from notes.notes import NoteBook
 from rich.console import Console
 from rich.prompt import Prompt
+from rapidfuzz import process
+
+
+
+VALID_COMMANDS = [
+    "add", "add-birthday", "add-address", "add-email", "phone",
+    "update", "remove", "show", "show-birthday", "birthdays",
+    "all", "help", "exit", "back", "contacts", "notes", "title", "text", "delete"
+]
+
+
 
 rich_console = Console()
 
@@ -40,11 +51,32 @@ def create_help_table() -> Table:
     return table
 
 
-def parse_input(user_input: str) -> tuple[str]:
-    """Get command from user input and parse it"""
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
-    return cmd, *args
+def parse_input(user_input: str) -> tuple[str | None, list[str]]:
+    user_input = user_input.strip()
+
+    if not user_input:
+        return None, []
+
+    words = user_input.split()
+    user_cmd = words[0].lower()
+    args = words[1:]
+
+    if user_cmd in VALID_COMMANDS:
+        return user_cmd, args
+
+    match_result = process.extractOne(user_cmd, VALID_COMMANDS, score_cutoff=60)
+
+    if match_result:
+        match, score = match_result[:2]
+        confirm = input(f"Did you mean '{match}'? (y/n): ").strip().lower()
+        if confirm == 'y':
+            return match, args
+        else:
+            print("Command cancelled.")
+            return None, []
+    else:
+        print("Unknown command.")
+        return None, []
 
 
 def load_data(filename=Path):

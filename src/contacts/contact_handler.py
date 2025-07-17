@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from contacts.contacts import ContactBook, Record, Phone, Name, Birthday
 from decorators import input_error
-import src.utilities as utilities
+import utilities
 from notes.notes import NoteBook
 
 
@@ -62,7 +62,6 @@ def add_contact_email(book: ContactBook, args: list):
     if contact_name in book.data:
         record = book.find(contact_name)
         record.add_email(email)
-        print(f"Email added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
 
