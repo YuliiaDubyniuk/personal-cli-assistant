@@ -115,15 +115,10 @@ class Record:
         self.address = Address(address)
         print(f"Address for {self.name.value} has been added.")
 
-    def edit_address(self, address: str):
-        self.add_address(address)
-
     def add_email(self, email: str):
         self.email = Email(email)
         print(f"Email for {self.name.value} has been added.")
 
-    def edit_email(self, email: str):
-        self.add_email(email)
 
 class ContactBook(UserDict):
     """A contact management class that stores, retrieves, updates, and deletes contact records"""

@@ -52,7 +52,6 @@ def add_contact_address(book: ContactBook, args: list):
     if contact_name in book.data:
         record = book.find(contact_name)
         record.add_address(address)
-        print(f"Address added/updated for {contact_name}.")
     else:
         raise KeyError(f"Contact {contact_name} not found.")
 
@@ -110,11 +109,11 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
                         break
                     case "email":
                         new_email = input("Enter the new email: ").strip()
-                        record.edit_email(new_email)
+                        record.add_email(new_email)
                         break
                     case "address":
                         new_address = input("Enter the new address: ").strip()
-                        record.edit_address(new_address)
+                        record.add_address(new_address)
                         break
                     case "birthday":
                         new_birthday = Birthday(
