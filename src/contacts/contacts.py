@@ -3,6 +3,7 @@ from pathlib import Path
 from collections import UserDict
 from datetime import datetime, timedelta
 import re
+
 from rich.console import Console
 
 rich_console = Console()
@@ -81,7 +82,8 @@ class Record:
         address_str = f"address: {self.address}" if self.address else "address: Not set"
         email_str = f"email: {self.email}" if self.email else "email: Not set"
         return f"Contact name: {self.name.value}, {birthday_str}, phones: {phones_str}, {address_str}, {email_str}"
-
+        from utilities import rich_console, create_table  # якщо потрібно
+        
     def add_phone(self, phone: str):
         self.phones.append(phone)
         print(f"[bold green]Phone {phone} has been added.[/bold green]")
