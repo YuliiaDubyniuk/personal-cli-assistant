@@ -25,7 +25,7 @@ def main():
     contactbook = data.get("contacts", ContactBook())
     notebook = data.get("notes", NoteBook())
 
-    # Welcome user and show main available commands
+    # Welcome user and show main command menu
     utilities.rich_console.print(
         "[bold magenta]Welcome to the Assistant Bot![/bold magenta]")
     utilities.print_main_help_menu()
@@ -76,8 +76,6 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
                     return "exit"
         case "exit":
             return "exit"
-        case _:
-            print("Invalid command.")
 
 
 if __name__ == "__main__":

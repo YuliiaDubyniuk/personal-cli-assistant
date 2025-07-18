@@ -5,13 +5,14 @@ from decorators import input_error
 from notes.notes import NoteBook
 from rich.prompt import Prompt
 import utilities
-#from utilities import rich_console
+# from utilities import rich_console
 
-#print = rich_console.print
+# print = rich_console.print
 from rich.console import Console
 
 rich_console = Console()
 print = rich_console.print
+
 
 def add_contact(book: ContactBook, args: list):
     """create contact if not exist, add phone to the contact"""
@@ -102,8 +103,10 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
             record = contactbook.find(contact_name)
 
             while True:
-                print(f"\n[bold blue]Current contact data:[/bold blue]\n{record}")
-                field = Prompt.ask("[blue]What do you want to update? (phone/email/address/birthday or 'back' to cancel)[/blue]").strip().lower()
+                print(
+                    f"\n[bold blue]Current contact data:[/bold blue]\n{record}")
+                field = Prompt.ask(
+                    "[blue]What do you want to update? (phone/email/address/birthday or 'back' to cancel)[/blue]").strip().lower()
                 if field == "back":
                     print("[bold yellow]Update cancelled.[/bold yellow]")
                     break
@@ -111,20 +114,26 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
                 match field:
                     case "phone":
                         while True:
-                            old_phone = Prompt.ask("[blue]Enter the old phone number:[/blue]").strip()
+                            old_phone = Prompt.ask(
+                                "[blue]Enter the old phone number:[/blue]").strip()
                             if any(p.value == old_phone for p in record.phones):
-                                new_phone = Phone(Prompt.ask("[blue]Enter the new phone number:[/blue]").strip())
+                                new_phone = Phone(Prompt.ask(
+                                    "[blue]Enter the new phone number:[/blue]").strip())
                                 record.edit_phone(old_phone, new_phone)
-                                print("[bold green]Phone number updated.[/bold green]")
+                                print(
+                                    "[bold green]Phone number updated.[/bold green]")
                                 break
                             else:
-                                print(f"[bold red]{old_phone} not found in {contact_name}'s phone numbers. Try again.[/bold red]")
+                                print(
+                                    f"[bold red]{old_phone} not found in {contact_name}'s phone numbers. Try again.[/bold red]")
                     case "email":
-                        new_email = Prompt.ask("[blue]Enter the new email:[/blue]").strip()
+                        new_email = Prompt.ask(
+                            "[blue]Enter the new email:[/blue]").strip()
                         record.add_email(new_email)
                         break
                     case "address":
-                        new_address = Prompt.ask("[blue]Enter the new address:[/blue]").strip()
+                        new_address = Prompt.ask(
+                            "[blue]Enter the new address:[/blue]").strip()
                         record.add_address(new_address)
                         break
                     case "birthday":
@@ -133,12 +142,14 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
                         record.add_birthday(new_birthday)
                         break
                     case _:
-                        print("[bold red]Invalid field. Please choose phone, email, address, or birthday.[/bold red]")
+                        print(
+                            "[bold red]Invalid field. Please choose phone, email, address, or birthday.[/bold red]")
                         continue
 
-                cont = Prompt.ask("[blue]Update another field? (yes/no):[/blue]").strip().lower()
+                cont = Prompt.ask(
+                    "[blue]Update another field? (yes/no):[/blue]").strip().lower()
                 if cont != "yes":
-                    break        
+                    break
 
         case "remove":
             # remove contact phone (if phone is provided) or delete contact by name
@@ -150,42 +161,53 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
             record = contactbook.find(contact_name)
 
             while True:
-                print(f"\n[bold blue]Current contact data:[/bold blue]\n{record}")
-                field = Prompt.ask("[blue]What do you want to remove? (phone/email/address/birthday or 'back' to cancel)[/blue]").strip().lower()
+                print(
+                    f"\n[bold blue]Current contact data:[/bold blue]\n{record}")
+                field = Prompt.ask(
+                    "[blue]What do you want to remove? (phone/email/address/birthday or 'back' to cancel)[/blue]").strip().lower()
                 if field == "back":
-                    print("[bold yellow]Remove cancelled.[/bold yellow]")
+                    print("[bold yellow]Removing cancelled.[/bold yellow]")
                     break
 
                 match field:
                     case "phone":
                         while True:
-                            phone_to_remove = Prompt.ask("[blue]Enter the phone number to remove:[/blue]").strip()
+                            phone_to_remove = Prompt.ask(
+                                "[blue]Enter the phone number to remove:[/blue]").strip()
                             if phone_to_remove not in [p.value for p in record.phones]:
-                                print(f"[bold red]{phone_to_remove} not found. Try again.[/bold red]")
+                                print(
+                                    f"[bold red]{phone_to_remove} not found. Try again.[/bold red]")
                             else:
                                 record.remove_phone(phone_to_remove)
-                                print(f"[bold green]Removed phone {phone_to_remove}.[/bold green]")
+                                print(
+                                    f"[bold green]Removed phone {phone_to_remove}.[/bold green]")
                                 break
                     case "email":
                         if record.email:
                             record.email = None
-                            print(f"[bold green]Email removed for {contact_name}.[/bold green]")
+                            print(
+                                f"[bold green]Email removed for {contact_name}.[/bold green]")
                         else:
-                            print(f"[bold yellow]No email set for {contact_name}.[/bold yellow]")
+                            print(
+                                f"[bold yellow]No email set for {contact_name}.[/bold yellow]")
                         break
                     case "address":
                         if record.address:
                             record.address = None
-                            print(f"[bold green]Address removed for {contact_name}.[/bold green]")
+                            print(
+                                f"[bold green]Address removed for {contact_name}.[/bold green]")
                         else:
-                            print(f"[bold yellow]No address set for {contact_name}.[/bold yellow]")
+                            print(
+                                f"[bold yellow]No address set for {contact_name}.[/bold yellow]")
                         break
                     case "birthday":
                         if record.birthday:
                             record.birthday = None
-                            print(f"[bold green]Birthday removed for {contact_name}.[/bold green]")
+                            print(
+                                f"[bold green]Birthday removed for {contact_name}.[/bold green]")
                         else:
-                            print(f"[bold yellow]No birthday set for {contact_name}.[/bold yellow]")
+                            print(
+                                f"[bold yellow]No birthday set for {contact_name}.[/bold yellow]")
                         break
                     case "contact":
                         print(f"[bold red]Full record:\n{record}[/bold red]")
@@ -194,14 +216,16 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
                         if confirm == "yes":
                             contactbook.delete(contact_name)
                         else:
-                            print("[bold yellow]Deletion cancelled.[/bold yellow]")
+                            print(
+                                "[bold yellow]Deletion cancelled.[/bold yellow]")
                         break
                     case _:
                         print("[bold red]Unknown field. Try again.[/bold red]")
 
-                cont = Prompt.ask("[blue]Remove another field? (yes/no):[/blue]").strip().lower()
+                cont = Prompt.ask(
+                    "[blue]Remove another field? (yes/no):[/blue]").strip().lower()
                 if cont != "yes":
-                    break        
+                    break
 
         case "show":
             # print full contact info
@@ -218,7 +242,8 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
                 for record in contactbook.data.values():
                     print(record)
             else:
-                print("[bold red]There are no records in your address book. Start adding.[/bold red]")
+                print(
+                    "[bold red]There are no records in your address book. Start adding.[/bold red]")
 
         case "show-birthday":
             contact_name = args[0]
