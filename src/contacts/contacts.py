@@ -3,7 +3,10 @@ from pathlib import Path
 from collections import UserDict
 from datetime import datetime, timedelta
 import re
+from rich.console import Console
 
+rich_console = Console()
+print = rich_console.print
 
 class Field:
     """Base class to represent a generic field with a value."""
@@ -81,13 +84,13 @@ class Record:
 
     def add_phone(self, phone: str):
         self.phones.append(phone)
-        print(f"Phone {phone} has been added.")
+        print(f"[bold green]Phone {phone} has been added.[/bold green]")
 
     def remove_phone(self, phone: str):
         for p in self.phones:
             if p.value == phone:
                 self.phones.remove(p)
-                print(f"Phone {phone} has been successfully removed.")
+                print(f"[bold green]Phone {phone} has been successfully removed.[/bold green]")
                 return
         raise ValueError(f"Contact {self.name} doesn't have phone {phone}")
 
@@ -96,7 +99,7 @@ class Record:
             if phone.value == old_phone:
                 self.phones[i] = new_phone
                 print(
-                    f"{self.name}'s phone {old_phone} has been successfully updated to {new_phone.value}.")
+                    f"[bold green]{self.name}'s phone {old_phone} has been successfully updated to {new_phone.value}.[/bold green]")
                 return
         raise ValueError(f"Contact {self.name} doesn't have phone {old_phone}")
 
@@ -109,15 +112,15 @@ class Record:
 
     def add_birthday(self, b_day_date: Birthday):
         self.birthday = b_day_date
-        print(f"{self.name.value}'s birthday has been added.")
+        print(f"[bold green]{self.name.value}'s birthday has been added.[/bold green]")
 
     def add_address(self, address: str):
         self.address = Address(address)
-        print(f"Address for {self.name.value} has been added.")
+        print(f"[bold green]Address for {self.name.value} has been added.[/bold green]")
 
     def add_email(self, email: str):
         self.email = Email(email)
-        print(f"Email for {self.name.value} has been added.")
+        print(f"[bold green]Email for {self.name.value} has been added.[/bold green]")
 
 
 class ContactBook(UserDict):
@@ -126,7 +129,7 @@ class ContactBook(UserDict):
     def add_record(self, record: Record):
         self.data[record.name.value] = record
         print(
-            f"Record for {record.name.value} has been successfully created.")
+            f"[bold green]Record for {record.name.value} has been successfully created.[/bold green]")
 
     def find(self, search_name: str):
         if search_name in self.data:
@@ -137,7 +140,7 @@ class ContactBook(UserDict):
     def delete(self, search_name: str):
         if search_name in self.data:
             del self.data[search_name]
-            print(f"Contact {search_name} has been deleted.")
+            print(f"[bold green]Contact {search_name} has been deleted.[/bold green]")
         else:
             raise KeyError()
 
