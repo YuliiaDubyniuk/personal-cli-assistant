@@ -4,7 +4,8 @@ from contacts.contact_handler import handle_contact_commands
 from contacts.contacts import ContactBook
 from notes.notes import NoteBook
 from notes.note_handler import handle_note_commands
-import utilities 
+import utilities
+from rich.prompt import Prompt
 from decorators import input_error
 
 
@@ -25,11 +26,13 @@ def main():
     notebook = data.get("notes", NoteBook())
 
     # Welcome user and show main available commands
-    print("Welcome to the assistant bot!")
+    utilities.rich_console.print(
+        "[bold magenta]Welcome to the Assistant Bot![/bold magenta]")
     utilities.print_main_help_menu()
 
     while True:
-        user_input = input("Enter a command: ")
+        user_input = Prompt.ask(
+            "[bold blue]MainMenu[/bold blue]")
         command, args = utilities.parse_input(user_input)
 
         result = handle_commands(
@@ -48,23 +51,25 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
         case "help":
             utilities.print_main_help_menu()
         case "contacts":
-            print("Type 'help' to see available contact commands.")
+            utilities.rich_console.print(
+                "[blue]Type contact command or [bold orange1]help[/bold orange1] to see available commands.[/blue]")
             while True:
-                user_input = input("ContactBook > ")
+                user_input = Prompt.ask(
+                    "[bold blue]ContactBook[/bold blue]")
                 command, args = utilities.parse_input(user_input)
-                result = handle_contact_commands(
-                    contactbook, notebook, command, args, filename)
+                result = handle_contact_commands(contactbook, command, args)
                 if result == "back":
                     break
                 elif result == "exit":
                     return "exit"
         case "notes":
+            utilities.rich_console.print(
+                "[blue]Type note command or [bold orange1]help[/bold orange1] to see available commands.[/blue]")
             while True:
-                utilities.print_notes_help_menu()
-                user_input = input("Enter command to handle your NoteBook: ")
+                user_input = Prompt.ask(
+                    "[bold blue]NoteBook[/bold blue]")
                 command, args = utilities.parse_input(user_input)
-                result = handle_note_commands(
-                    contactbook, notebook, command, args, filename)
+                result = handle_note_commands(notebook, command, args)
                 if result == "back":
                     break
                 elif result == "exit":

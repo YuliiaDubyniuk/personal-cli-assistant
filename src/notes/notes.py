@@ -1,9 +1,6 @@
 from datetime import datetime
-# from rich.console import Console
 from contacts.contacts import Field
-import utilities 
-
-# rich_console = Console()
+import utilities
 
 
 class Title(Field):
@@ -24,13 +21,21 @@ class Text(Field):
         super().__init__(value)
 
 
+class Tag(Field):
+    def __init__(self, value: str):
+        if len(value) < 3:
+            raise ValueError("Tag must be at least 3 characters!")
+        super().__init__(value)
+
+
 class Note:
     """Represents a single note and provides methods to manage its data"""
 
-    def __init__(self, title: Title, text: Text):
+    def __init__(self, title: Title, text: Text, tags: list[Tag] = []):
         self.title = title
-        self.date = datetime.today().strftime("%d %B %Y")
+        self.date = self.set_date()
         self.text = text
+        self.tags = tags
 
     def __str__(self):
         # Create the table for a single note
@@ -39,12 +44,16 @@ class Note:
         table.add_column("Value")
 
         table.add_row("Title", self.title.value)
-        table.add_row("Date", self.date)
+        table.add_row("Created/updated", self.date)
+        # table.add_row("Tags", self.tags)
         table.add_row("Text", self.text.value)
 
         with utilities.rich_console.capture() as capture:
             utilities.rich_console.print(table)
         return capture.get()
+
+    def set_date(self):
+        return datetime.today().strftime("%d %B %Y")
 
 
 class NoteBook:
@@ -58,29 +67,6 @@ class NoteBook:
         utilities.rich_console.print(
             f"[bold green]Note '{note.title}' added successfully.[/bold green]")
 
-    def show_all_notes(self):
-        if not self.notes:
-            utilities.rich_console.print(
-                "[bold red]No notes found.[/bold red]")
-            return
-
-        table = utilities.create_table("All Notes")
-        table.add_column("ID", justify="center", no_wrap=True)
-        table.add_column("Title", justify="left", no_wrap=True)
-        table.add_column("Date", justify="center", no_wrap=True)
-        table.add_column("Text", justify="left")
-
-        for i, note in enumerate(self.notes, start=1):
-            formatted_text = note.text.value.replace(", ", "\n")
-            table.add_row(
-                str(i),
-                note.title.value,
-                note.date,
-                formatted_text
-            )
-
-        utilities.rich_console.print(table)
-
     def delete_by_id(self, note_id: int):
         removed_note = self.notes.pop(note_id - 1)
         utilities.rich_console.print(
@@ -90,3 +76,28 @@ class NoteBook:
         note_id = utilities.get_valid_id(
             "Provide ID of the note you want to update", len(self.notes))
         return self.notes[note_id - 1]
+
+    def find_by_keyword(self, keywords: list) -> list[Note]:
+        """Search notes by one or more keywords in title or tags. Returns list of matched notes."""
+        norm_keys = [k.strip().lower() for k in keywords if k and k.strip()]
+
+        matches = []
+        note_checked = set()
+
+        for idx, note in enumerate(self.notes):
+            title = note.title.value.lower()
+            tags = [t.value.lower() for t in note.tags]
+
+            # check for full match of the keyword with any note tag or for partial match with title
+            for key in norm_keys:
+                title_match = key in title
+                tag_match = any(key == tag or key in tag for tag in tags)
+
+                if title_match or tag_match:
+                    # stop at first match, no need to check remaining keywords
+                    if idx not in note_checked:
+                        matches.append(note)
+                        note_checked.add(idx)
+                    break
+
+        return matches
