@@ -67,7 +67,7 @@ def add_contact_email(book: ContactBook, args: list):
 
 
 @input_error
-def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, command: str, args: list, filename: Path):
+def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
     """Central command processor with error handling via a decorator."""
     match command:
         case "back":
@@ -75,7 +75,7 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
         case "help":
             utilities.print_contacts_help_menu()
         case "exit":
-            return utilities.exit_assistant(contactbook, notebook, filename)
+            return "exit"
         case "add":
             add_contact(contactbook, args)
         case "add-birthday":
@@ -183,7 +183,8 @@ def handle_contact_commands(contactbook: ContactBook, notebook: NoteBook, comman
         case "show":
             # print full contact info
             if not args:
-                raise ValueError("Contact name is required for 'show' command.")
+                raise ValueError(
+                    "Contact name is required for 'show' command.")
             contact_name = args[0]
             record = contactbook.find(contact_name)
             print(record)
