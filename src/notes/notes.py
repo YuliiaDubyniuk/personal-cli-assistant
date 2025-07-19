@@ -1,4 +1,5 @@
 from datetime import datetime
+from rich.prompt import Prompt
 from contacts.contacts import Field
 import utilities
 
@@ -33,26 +34,26 @@ class Note:
 
     def __init__(self, title: Title, text: Text, tags: list[Tag] = []):
         self.title = title
-        self.date = self.set_date()
+        self.date: str = self.set_date()
         self.text = text
         self.tags = tags
 
-    def __str__(self):
-        # Create the table for a single note
-        table = utilities.create_table(title="Note Details")
-        table.add_column("Field", no_wrap=True)
-        table.add_column("Value")
+    # def __str__(self):
+    #     # Create the table for a single note
+    #     table = utilities.create_table(title="Note Details")
+    #     table.add_column("Field", no_wrap=True)
+    #     table.add_column("Value")
 
-        table.add_row("Title", self.title.value)
-        table.add_row("Created/updated", self.date)
-        # table.add_row("Tags", self.tags)
-        table.add_row("Text", self.text.value)
+    #     table.add_row("Title", self.title.value)
+    #     table.add_row("Created/updated", self.date)
+    #     table.add_row("Tags", self.tags)
+    #     table.add_row("Text", self.text.value)
 
-        with utilities.rich_console.capture() as capture:
-            utilities.rich_console.print(table)
-        return capture.get()
+        # with utilities.rich_console.capture() as capture:
+        #     utilities.rich_console.print(table)
+        # return capture.get()
 
-    def set_date(self):
+    def set_date(self) -> str:
         return datetime.today().strftime("%d %B %Y")
 
 
@@ -65,19 +66,14 @@ class NoteBook:
     def add_note(self, note: Note):
         self.notes.append(note)
         utilities.rich_console.print(
-            f"[bold green]Note '{note.title}' added successfully.[/bold green]")
+            f"[bold green]Note [blue]{note.title}[/blue] added successfully.[/bold green]")
 
-    def delete_by_id(self, note_id: int):
-        removed_note = self.notes.pop(note_id - 1)
-        utilities.rich_console.print(
-            f"[bold green]Note '{removed_note.title}' deleted successfully.[/bold green]")
+    # def delete_by_id(self, note_id: int):
+    #     removed_note = self.notes.pop(note_id - 1)
+    #     utilities.rich_console.print(
+    #         f"[bold green]Note [grey0]{removed_note.title}[grey0] deleted successfully.[/bold green]")
 
-    def find_note_by_id(self):
-        note_id = utilities.get_valid_id(
-            "Provide ID of the note you want to update", len(self.notes))
-        return self.notes[note_id - 1]
-
-    def find_by_keyword(self, keywords: list) -> list[Note]:
+    def find_by_keyword(self, keywords: list[str]) -> list[Note]:
         """Search notes by one or more keywords in title or tags. Returns list of matched notes."""
         norm_keys = [k.strip().lower() for k in keywords if k and k.strip()]
 
@@ -101,3 +97,22 @@ class NoteBook:
                     break
 
         return matches
+
+    def sort_notes_by_tags(self) -> list[Note]:
+        """
+        Return notes sorted alphabetically by the first tag in each note's tag list.
+        Notes without tags appear last. Case-insensitive.
+        """
+        tagged_notes: list[Note] = []
+        untagged_notes: list[Note] = []
+
+        for note in self.notes:
+            if note.tags:
+                tagged_notes.append(note)
+            else:
+                untagged_notes.append(note)
+
+        # Sort tagged notes by the first tag value (case-insensitive)
+        tagged_notes.sort(key=lambda n: n.tags[0].value.lower())
+
+        return tagged_notes + untagged_notes

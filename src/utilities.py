@@ -2,7 +2,7 @@ from rich.table import Table
 from pathlib import Path
 import pickle
 from contacts.contacts import ContactBook
-from notes.notes import NoteBook, Tag
+from notes.notes import NoteBook, Tag, Note
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.padding import Padding
@@ -10,9 +10,9 @@ from rapidfuzz import process
 
 
 VALID_COMMANDS = [
-    "add", "add-birthday", "add-address", "add-email", "phone",
+    "add", "add-birthday", "add-address", "add-email", "phone", "sort",
     "update", "remove", "show", "show-birthday", "birthdays", "find",
-    "all", "help", "exit", "back", "contacts", "notes", "title", "text", "delete"
+    "all", "help", "exit", "back", "contacts", "notes", "title", "text",
 ]
 
 
@@ -36,11 +36,11 @@ def create_help_table() -> Table:
     with blue row separators.
     """
     table = Table(
-        show_header=False,       # No header
-        show_edge=False,         # No outer borders
-        show_lines=True,         # Blue separators between rows
-        row_styles=["none"],     # No alternating colors
-        border_style="blue"      # Color of row separators
+        show_header=False,
+        show_edge=False,
+        show_lines=True,
+        row_styles=["none"],
+        border_style="blue"
     )
 
     table.add_column("Command", style="bold orange1",
@@ -68,14 +68,16 @@ def parse_input(user_input: str) -> tuple[str | None, list[str]]:
 
     if match_result:
         match, score = match_result[:2]
-        confirm = input(f"Did you mean '{match}'? (y/n): ").strip().lower()
+        confirm = Prompt.ask(
+            f"[blue]Did you mean [bold orange1]{match}[/bold orange1]? ([bold orange1]y[/bold orange1]/[bold orange1]n[/bold orange1])[blue]").strip().lower()
         if confirm == 'y':
             return match, args
         else:
-            print("Command cancelled.")
+            rich_console.print("[bold red]Command cancelled.[/bold red]")
             return None, []
     else:
-        print("Unknown command.")
+        rich_console.print(
+            "[bold red]Unknown command. Type [bold orange1]help[/bold orange1] to see available commands[/bold red].")
         return None, []
 
 
@@ -147,7 +149,9 @@ def print_notes_help_menu():
 
     table.add_row("add", "Add a new note")
     table.add_row("update", "Update an existing note")
-    table.add_row("delete", "Delete a note")
+    table.add_row("remove", "Delete a note")
+    table.add_row("find <search phrase>", "Find note(s) by search phrase")
+    table.add_row("sort", "Sort all notes by tags")
     table.add_row("all", "Show all notes")
     table.add_row("help", "Show this note command list again")
     table.add_row("back", "Return to the main menu")
@@ -179,21 +183,73 @@ def get_validated_input(prompt_text: str, field_class):
             rich_console.print(f"[bold red]{e}[/bold red]")
 
 
-def get_valid_id(prompt_text: str, max_id: int) -> int:
+def get_valid_id(value: str, max_id: int) -> int:
     """
     Prompt user for a valid numeric ID within the given range.
     Retries until valid input is entered.
     """
-    while True:
-        try:
-            value = Prompt.ask(f"[blue]{prompt_text}[/blue]").strip()
-            if not value:
-                return 0
-            val = int(value)
-            if 1 <= val <= max_id:
-                return val
+    try:
+        id_num = int(value)
+        if 1 <= id_num <= max_id:
+            return id_num
+        else:
             rich_console.print(
                 f"[bold red]ID must be between 1 and {max_id}.[/bold red]")
-        except ValueError:
-            rich_console.print(
-                "[bold red]Please enter a valid number.[/bold red]")
+            return None
+    except ValueError:
+        rich_console.print(
+            f"[bold red]Please enter a number from 1 to {max_id}.[/bold red]")
+        return None
+
+
+def ask_for_id(max_id: int, cmd: str) -> int | None | str:
+    """Prompt user for ID or allow 'back'/'exit'."""
+    while True:
+        input_val = Prompt.ask(
+            f"[blue]Enter [bold orange1]ID[/bold orange1] to {cmd} note "
+            "(type [bold orange1]back[/bold orange1] to cancel)[/blue]"
+        ).strip().lower()
+
+        if input_val == "exit":
+            return "exit"
+        if input_val == "back":
+            return None
+
+        note_id = get_valid_id(input_val, max_id)
+        if note_id is not None:
+            return note_id
+
+
+def select_note(notebook: NoteBook, cmd: str) -> Note | None | str:
+    """Show notes, ask user for ID to perform action (update/delete), return the selected note."""
+    show_notes_list(notebook.notes, "All Notes")
+    note_id = ask_for_id(len(notebook.notes), cmd)
+
+    if note_id == "exit":
+        return "exit"
+    if note_id is None:
+        return None
+
+    return notebook.notes[note_id - 1]
+
+
+def show_notes_list(notes: list[Note], title: str):
+    """Display a list of notes in a Rich table with given title."""
+    table = create_table(title)
+    table.add_column("ID", justify="center", no_wrap=True)
+    table.add_column("Title", justify="left", no_wrap=True)
+    table.add_column("Created/Updated", justify="center", no_wrap=True)
+    table.add_column("Tags", justify="left")
+    table.add_column("Text", justify="left")
+
+    for i, note in enumerate(notes, start=1):
+        formatted_text = note.text.value.replace(", ", "\n")
+        table.add_row(
+            str(i),
+            note.title.value,
+            note.date,
+            ", ".join(t.value for t in note.tags),
+            formatted_text
+        )
+
+    rich_console.print(table)

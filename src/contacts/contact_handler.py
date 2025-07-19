@@ -5,13 +5,14 @@ from decorators import input_error
 from notes.notes import NoteBook
 from rich.prompt import Prompt
 import utilities
-#from utilities import rich_console
+# from utilities import rich_console
 
-#print = rich_console.print
+# print = rich_console.print
 from rich.console import Console
 
 rich_console = Console()
 print = rich_console.print
+
 
 def add_contact(book: ContactBook, args: list):
     """create contact if not exist, add phone to the contact"""
@@ -201,15 +202,13 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
             add_contact_address(contactbook, args)
         case "add-email":
             add_contact_email(contactbook, args)
-
         case "update":
             # update contact phone, email, address, birthday
             contact_name = args[0]
             if contact_name not in contactbook.data:
                 raise KeyError(f"Contact {contact_name} not found.")
             record = contactbook.find(contact_name)
-            update_contact(record, contact_name)       
-
+            update_contact(record, contact_name)     
         case "remove":
             # remove contact phone (if phone is provided), email, address, birthday or delete contact by name
             contact_name = args[0]
@@ -217,7 +216,6 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
                 raise KeyError(f"Contact {contact_name} not found.")
             record = contactbook.find(contact_name)
             remove_contact_field(contactbook, record, contact_name)    
-
         case "show":
             # print full contact info
             if not args:
@@ -226,14 +224,14 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
             contact_name = args[0]
             record = contactbook.find(contact_name)
             print(record)
-
         case "all":
             # return all records in the address book
             if contactbook.data:
                 for record in contactbook.data.values():
                     print(record)
             else:
-                print("[bold red]There are no records in your address book. Start adding.[/bold red]")
+                print(
+                    "[bold red]There are no records in your address book. Start adding.[/bold red]")
 
         case "show-birthday":
             contact_name = args[0]
@@ -241,7 +239,6 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
             birthday = record.birthday
             print(
                 f"{contact_name}'s birthday is {birthday}" if birthday else f"{contact_name}'s birthday is not set.")
-
         case "birthdays":
             days = int(args[0]) if args else None
             show_upcoming_birthdays(contactbook, days)
