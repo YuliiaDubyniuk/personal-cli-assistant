@@ -38,7 +38,7 @@ def main():
         result = handle_commands(
             contactbook, notebook, command, args, cli_args.file)
         if result == "exit":
-            utilities.exit_assistant(contactbook, notebook, cli_args.file)
+            exit_assistant(contactbook, notebook, cli_args.file)
             break
 
 
@@ -76,6 +76,17 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
                     return "exit"
         case "exit":
             return "exit"
+
+
+def exit_assistant(contactbook: ContactBook, notebook: NoteBook, filename):
+    # Save Assistant data to file and exit assistant
+    backup_state = {
+        "contacts": contactbook,
+        "notes": notebook
+    }
+    utilities.save_data(backup_state, filename)
+    utilities.rich_console.print("[bold magenta]Good bye![bold magenta]")
+    return "exit"
 
 
 if __name__ == "__main__":
