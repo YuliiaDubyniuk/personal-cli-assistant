@@ -67,7 +67,8 @@ def handle_delete_note(notebook: NoteBook, cmd: str):
             return
         case note:
             cont = Prompt.ask(
-                f"[blue]Are you sure you want to remove '{note.title.value}'? ([bold orange1]y[/bold orange1]/[bold orange1]n[/bold orange1])[/blue]").strip().lower()
+                f"[blue]Are you sure you want to remove '{note.title.value}'? ([bold orange1]y[/bold orange1]/"
+                "[bold orange1]n[/bold orange1])[/blue]").strip().lower()
             if cont != "y":
                 utilities.rich_console.print(
                     f"[bold red]Removing cancelled.[/bold red]"
@@ -97,7 +98,9 @@ def handle_update_note(notebook: NoteBook, cmd):
 
     while True:
         sub_command = Prompt.ask(
-            "[blue]What do you want to update? ([bold orange1]title[/bold orange1]/[bold orange1]tag[/bold orange1]/[bold orange1]text[/bold orange1] or [bold orange1]back[/bold orange1] to cancel)[/blue]").strip().lower()
+            "[blue]What do you want to update? ([bold orange1]title[/bold orange1]/"
+            "[bold orange1]tag[/bold orange1]/[bold orange1]text[/bold orange1] or "
+            "[bold orange1]back[/bold orange1] to cancel)[/blue]").strip().lower()
         match sub_command:
             case "title":
                 new_title = utilities.get_validated_input(
@@ -112,6 +115,7 @@ def handle_update_note(notebook: NoteBook, cmd):
                 note_to_update.text = new_text
                 utilities.rich_console.print(
                     "[bold green]Text successfully updated![/bold green]")
+                note_to_update.date = note_to_update.set_date()
             case "tag":
                 if not note_to_update.tags:
                     utilities.rich_console.print(
@@ -136,13 +140,14 @@ def handle_update_note(notebook: NoteBook, cmd):
                                        prev_tag else t for t in note_to_update.tags]
                 utilities.rich_console.print(
                     "[bold green]Tags successfully updated![/bold green]")
+                note_to_update.date = note_to_update.set_date()
             case "back":
                 break
             case "exit":
                 return "exit"
             case _:
                 utilities.rich_console.print(
-                    "[bold red]Invalid command.[/bold red]")
+                    "[bold red]Unknown field. Try again.[/bold red]")
                 continue
 
         cont = Prompt.ask(

@@ -1,7 +1,6 @@
 from rich.table import Table
 from pathlib import Path
 import pickle
-from contacts.contacts import ContactBook
 from notes.notes import NoteBook, Tag, Note
 from rich.console import Console
 from rich.prompt import Prompt
@@ -94,15 +93,15 @@ def save_data(data: dict, filename=Path):
         pickle.dump(data, f)
 
 
-def exit_assistant(contactbook: ContactBook, notebook: NoteBook, filename):
-    # Save Assistant data to file and exit assistant
-    backup_state = {
-        "contacts": contactbook,
-        "notes": notebook
-    }
-    save_data(backup_state, filename)
-    rich_console.print("[bold magenta]Good bye![bold magenta]")
-    return "exit"
+# def exit_assistant(contactbook: ContactBook, notebook: NoteBook, filename):
+#     # Save Assistant data to file and exit assistant
+#     backup_state = {
+#         "contacts": contactbook,
+#         "notes": notebook
+#     }
+#     save_data(backup_state, filename)
+#     rich_console.print("[bold magenta]Good bye![bold magenta]")
+#     return "exit"
 
 
 def print_main_help_menu():
@@ -250,6 +249,34 @@ def show_notes_list(notes: list[Note], title: str):
             note.date,
             ", ".join(t.value for t in note.tags),
             formatted_text
+        )
+
+    rich_console.print(table)
+
+
+def show_contacts_list(disp_data, title: str):
+    table = create_table(title)
+    table.add_column("Name")
+    table.add_column("Phones")
+    table.add_column("Email")
+    table.add_column("Address")
+    table.add_column("Birthday")
+
+    if isinstance(disp_data, dict):
+        records = list(disp_data.values())
+    elif isinstance(disp_data, list):
+        records = disp_data
+    else:
+        records = [disp_data]
+
+    for contact in records:
+        table.add_row(
+            contact.name.value,
+            '; '.join(p.value for p in contact.phones),
+            contact.email.value if contact.email else "",
+            contact.address.value if contact.address else "",
+            contact.birthday.value.strftime(
+                "%d.%m.%Y") if contact.birthday else ""
         )
 
     rich_console.print(table)

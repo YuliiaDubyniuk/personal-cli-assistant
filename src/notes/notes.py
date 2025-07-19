@@ -1,6 +1,6 @@
 from datetime import datetime
 from rich.prompt import Prompt
-from contacts.contacts import Field
+from models import Field
 import utilities
 
 
@@ -38,21 +38,6 @@ class Note:
         self.text = text
         self.tags = tags
 
-    # def __str__(self):
-    #     # Create the table for a single note
-    #     table = utilities.create_table(title="Note Details")
-    #     table.add_column("Field", no_wrap=True)
-    #     table.add_column("Value")
-
-    #     table.add_row("Title", self.title.value)
-    #     table.add_row("Created/updated", self.date)
-    #     table.add_row("Tags", self.tags)
-    #     table.add_row("Text", self.text.value)
-
-        # with utilities.rich_console.capture() as capture:
-        #     utilities.rich_console.print(table)
-        # return capture.get()
-
     def set_date(self) -> str:
         return datetime.today().strftime("%d %B %Y")
 
@@ -67,11 +52,6 @@ class NoteBook:
         self.notes.append(note)
         utilities.rich_console.print(
             f"[bold green]Note [blue]{note.title}[/blue] added successfully.[/bold green]")
-
-    # def delete_by_id(self, note_id: int):
-    #     removed_note = self.notes.pop(note_id - 1)
-    #     utilities.rich_console.print(
-    #         f"[bold green]Note [grey0]{removed_note.title}[grey0] deleted successfully.[/bold green]")
 
     def find_by_keyword(self, keywords: list[str]) -> list[Note]:
         """Search notes by one or more keywords in title or tags. Returns list of matched notes."""
