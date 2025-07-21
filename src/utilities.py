@@ -6,13 +6,56 @@ from rich.console import Console
 from rich.prompt import Prompt
 from rich.padding import Padding
 from rapidfuzz import process
+from commands import MainCommands, ContactCommands, NoteCommands
 
 
-VALID_COMMANDS = [
-    "add", "add-birthday", "add-address", "add-email", "phone", "sort",
-    "update", "remove", "show", "show-birthday", "birthdays", "find",
-    "all", "help", "exit", "back", "contacts", "notes", "title", "text",
-]
+VALID_MAIN = [cmd.value for cmd in MainCommands]
+VALID_CONTACTS = [cmd.value for cmd in ContactCommands]
+VALID_NOTES = [cmd.value for cmd in NoteCommands]
+
+
+def parse_input(user_input: str, valid_commands: list[str]) -> tuple[str | None, list[str]]:
+    user_input = user_input.strip()
+
+    if not user_input:
+        return None, []
+
+    words = user_input.split()
+    user_cmd = words[0].lower()
+    args = words[1:]
+
+    if user_cmd in valid_commands:
+        return user_cmd, args
+
+    match_result = process.extractOne(
+        user_cmd, valid_commands, score_cutoff=60)
+
+    if match_result:
+        match, _ = match_result[:2]
+        confirm = Prompt.ask(
+            f"[blue]Did you mean [bold orange1]{match}[/bold orange1]? ([bold orange1]y[/bold orange1]/[bold orange1]n[/bold orange1])[blue]").strip().lower()
+        if confirm == 'y':
+            return match, args
+        else:
+            rich_console.print("[bold red]Command cancelled.[/bold red]")
+            return None, []
+    else:
+        rich_console.print(
+            "[bold red]Unknown command. Type [bold orange1]help[/bold orange1] to see available commands[/bold red].")
+        return None, []
+
+
+def load_data(filename=Path):
+    try:
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return {}
+
+
+def save_data(data: dict, filename=Path):
+    with open(filename, "wb") as f:
+        pickle.dump(data, f)
 
 
 rich_console = Console()
@@ -49,61 +92,6 @@ def create_help_table() -> Table:
     return table
 
 
-def parse_input(user_input: str) -> tuple[str | None, list[str]]:
-    user_input = user_input.strip()
-
-    if not user_input:
-        return None, []
-
-    words = user_input.split()
-    user_cmd = words[0].lower()
-    args = words[1:]
-
-    if user_cmd in VALID_COMMANDS:
-        return user_cmd, args
-
-    match_result = process.extractOne(
-        user_cmd, VALID_COMMANDS, score_cutoff=60)
-
-    if match_result:
-        match, score = match_result[:2]
-        confirm = Prompt.ask(
-            f"[blue]Did you mean [bold orange1]{match}[/bold orange1]? ([bold orange1]y[/bold orange1]/[bold orange1]n[/bold orange1])[blue]").strip().lower()
-        if confirm == 'y':
-            return match, args
-        else:
-            rich_console.print("[bold red]Command cancelled.[/bold red]")
-            return None, []
-    else:
-        rich_console.print(
-            "[bold red]Unknown command. Type [bold orange1]help[/bold orange1] to see available commands[/bold red].")
-        return None, []
-
-
-def load_data(filename=Path):
-    try:
-        with open(filename, "rb") as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        return {}
-
-
-def save_data(data: dict, filename=Path):
-    with open(filename, "wb") as f:
-        pickle.dump(data, f)
-
-
-# def exit_assistant(contactbook: ContactBook, notebook: NoteBook, filename):
-#     # Save Assistant data to file and exit assistant
-#     backup_state = {
-#         "contacts": contactbook,
-#         "notes": notebook
-#     }
-#     save_data(backup_state, filename)
-#     rich_console.print("[bold magenta]Good bye![bold magenta]")
-#     return "exit"
-
-
 def print_main_help_menu():
     table = create_help_table()
     table.title = "[bold blue]Main Commands[/bold blue]"
@@ -121,7 +109,7 @@ def print_contacts_help_menu():
     table.title = "[bold blue]Contact Commands[/bold blue]"
 
     table.add_row("add <name> <phone>",
-                  "Add a new contact or phone to existing")
+                  "Create a new contact or add phone to existing")
     table.add_row("add-birthday <name> <DD.MM.YYYY>",
                   "Add or overwrite birthday")
     table.add_row("add-address <name> <address>", "Add or overwrite address")

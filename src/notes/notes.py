@@ -1,5 +1,4 @@
 from datetime import datetime
-from rich.prompt import Prompt
 from models import Field
 import utilities
 
@@ -50,8 +49,6 @@ class NoteBook:
 
     def add_note(self, note: Note):
         self.notes.append(note)
-        utilities.rich_console.print(
-            f"[bold green]Note [blue]{note.title}[/blue] added successfully.[/bold green]")
 
     def find_by_keyword(self, keywords: list[str]) -> list[Note]:
         """Search notes by one or more keywords in title or tags. Returns list of matched notes."""

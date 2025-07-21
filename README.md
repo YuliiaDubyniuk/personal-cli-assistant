@@ -1,4 +1,4 @@
-# 🖥️Personal CLI Assistant
+# 🖥️ Personal CLI Assistant
 
 **Personal CLI Assistant** is an autonomous command-line application that helps you manage contacts, notes, and birthdays directly from your terminal. Built with Python and bundled as a standalone `.exe` file using PyInstaller.
 
@@ -19,7 +19,7 @@
 
 > The final version is available as a standalone `.exe` file — **no Python installation required**.
 
-**🔗 [Download Personal CLI Assistant v1.0.0](https://example.com/download)**
+**🔗 [Download Personal CLI Assistant v1.0.0](https://github.com/YuliiaDubyniuk/personal-cli-assistant/blob/main/dist/personal-assistant.exe)**
 
 ---
 
@@ -74,7 +74,7 @@ If you want to build the .exe yourself:
 
 ```
 pip install -r requirements.txt
-pyinstaller --onefile src/main.py -n personal-assistant
+pyinstaller -- onefile src/main.py -n personal-assistant
 ```
 
 After building, the standalone file will be located in the dist/ folder.
@@ -95,7 +95,7 @@ After building, the standalone file will be located in the dist/ folder.
 
 ## 👤 Author
 
-This project was created as part of the Python Core course (GoIT) by Olkhovetska Bohdana, Yuliia Dubyniuk, [Your Name] .
+This project was created as part of the Python Core course (GoIT) by Olkhovetska Bohdana, Yuliia Dubyniuk and Kateryna Kyrylchuk .
 
 ---
 
