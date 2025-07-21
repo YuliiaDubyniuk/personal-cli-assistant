@@ -1,8 +1,6 @@
-from pathlib import Path
 from collections import UserDict
 from datetime import datetime
 import re
-import utilities
 from models import Field
 from rich.console import Console
 
@@ -16,7 +14,7 @@ class Name(Field):
     def __init__(self, value: str):
         if len(value.strip()) < 3:
             raise ValueError("Name must have at least 3 characters.")
-        super().__init__(value)
+        super().__init__(value.capitalize())
 
 
 class Phone(Field):
@@ -71,16 +69,17 @@ class Record:
         self.address = None
         self.email = None
 
+    def is_empty(self) -> bool:
+        """Check if record has no data except name."""
+        return not (self.phones or self.birthday or self.address or self.email)
+
     def add_phone(self, phone: str):
         self.phones.append(phone)
-        print(f"[bold green]Phone '{phone}' has been added.[/bold green]")
 
     def remove_phone(self, phone: str):
         for p in self.phones:
             if p.value == phone:
                 self.phones.remove(p)
-                print(
-                    f"[bold green]Phone '{phone}' has been successfully removed.[/bold green]")
                 return
         raise ValueError(f"Contact {self.name} doesn't have phone '{phone}'")
 
@@ -94,17 +93,8 @@ class Record:
         raise ValueError(
             f"Contact {self.name} doesn't have phone '{old_phone}'")
 
-    def find_phone(self, phone: str):
-        for p in self.phones:
-            if p.value == phone:
-                print(f"{self.name}: {phone}")
-                return phone
-        raise ValueError(f"Contact {self.name} doesn't have phone '{phone}'")
-
     def add_birthday(self, b_day_date: Birthday):
         self.birthday = b_day_date
-        print(
-            f"[bold green]{self.name.value}'s birthday has been added.[/bold green]")
 
     def add_address(self, address: str):
         self.address = Address(address)
@@ -142,8 +132,6 @@ class ContactBook(UserDict):
     def delete(self, search_name: str):
         if search_name in self.data:
             del self.data[search_name]
-            print(
-                f"[bold green]Contact {search_name} has been deleted.[/bold green]")
         else:
             raise KeyError()
 

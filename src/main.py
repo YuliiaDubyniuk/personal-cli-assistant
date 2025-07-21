@@ -33,17 +33,18 @@ def main():
     while True:
         user_input = Prompt.ask(
             "[bold blue]MainMenu[/bold blue]")
-        command, args = utilities.parse_input(user_input)
+        command, args = utilities.parse_input(
+            user_input, utilities.VALID_MAIN)
 
         result = handle_commands(
-            contactbook, notebook, command, args, cli_args.file)
+            contactbook, notebook, command, args)
         if result == "exit":
             exit_assistant(contactbook, notebook, cli_args.file)
             break
 
 
 @input_error
-def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, args: list, filename: Path):
+def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, args: list):
     """Central command processor with error handling via a decorator."""
     match command:
         case "hello":
@@ -56,7 +57,8 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
             while True:
                 user_input = Prompt.ask(
                     "[bold blue]ContactBook[/bold blue]")
-                command, args = utilities.parse_input(user_input)
+                command, args = utilities.parse_input(
+                    user_input, utilities.VALID_CONTACTS)
                 result = handle_contact_commands(contactbook, command, args)
                 if result == "back":
                     break
@@ -68,7 +70,8 @@ def handle_commands(contactbook: ContactBook, notebook: NoteBook, command: str, 
             while True:
                 user_input = Prompt.ask(
                     "[bold blue]NoteBook[/bold blue]")
-                command, args = utilities.parse_input(user_input)
+                command, args = utilities.parse_input(
+                    user_input, utilities.VALID_NOTES)
                 result = handle_note_commands(notebook, command, args)
                 if result == "back":
                     break

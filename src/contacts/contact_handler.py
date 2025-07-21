@@ -1,13 +1,8 @@
 from datetime import datetime
-from pathlib import Path
 from contacts.contacts import ContactBook, Record, Phone, Name, Birthday
 from decorators import input_error
-from notes.notes import NoteBook
 from rich.prompt import Prompt
 import utilities
-# from utilities import rich_console
-
-# print = rich_console.print
 from rich.console import Console
 
 rich_console = Console()
@@ -15,15 +10,16 @@ print = rich_console.print
 
 
 def add_contact_birthday(book: ContactBook, args: list):
-    """create contact if not exist, add birthday to the contact"""
-    contact_name, b_day = Name(args[0]), Birthday(args[1])
-    if contact_name.value in book.data:
-        record = book.find(contact_name.value)
-    else:
-        record = Record(contact_name.value)
-        book.add_record(record)
+    """Add a birthday to an existing contact."""
+    contact_name = args[0].capitalize()
+    b_day_str = args[1]
+    if contact_name not in book.data:
+        raise KeyError()
 
-    record.add_birthday(b_day)
+    record = book.find(contact_name)
+    record.add_birthday(Birthday(b_day_str))
+    print(
+        f"[bold green]{contact_name}'s birthday has been added.[/bold green]")
 
 
 def show_upcoming_birthdays(book: ContactBook, days: int = 7):
@@ -34,18 +30,18 @@ def show_upcoming_birthdays(book: ContactBook, days: int = 7):
     if not upcoming_birthdays:
         print(f"There are no birthdays in the next {days} days.")
     else:
-        print(f"Here are the upcoming birthdays in the next {days} days:")
+        print(
+            f"[blue]Here are the upcoming birthdays in the next {days} days:[/blue]")
         for record in upcoming_birthdays:
             name = record.name.value
             dob = record.birthday.value.date()
-            upcoming_bday = dob.replace(year=datetime.today().year)
             print(
-                f"{name}'s birthday is {upcoming_bday.strftime('%d.%m.%Y')}")
+                f"[blue][white]{name}'s[/white] birthday is [/blue][white]{dob.strftime('%d %B')}[/white]")
 
 
 def add_contact_address(book: ContactBook, args: list):
     """Add or update address for contact"""
-    contact_name, address = args[0], " ".join(args[1:])
+    contact_name, address = args[0].capitalize(), " ".join(args[1:])
     if contact_name in book.data:
         record = book.find(contact_name)
         record.add_address(address)
@@ -55,7 +51,7 @@ def add_contact_address(book: ContactBook, args: list):
 
 def add_contact_email(book: ContactBook, args: list):
     """Add or update email for contact"""
-    contact_name, email = args[0], args[1]
+    contact_name, email = args[0].capitalize(), args[1]
     if contact_name in book.data:
         record = book.find(contact_name)
         record.add_email(email)
@@ -150,13 +146,25 @@ def remove_contact_field(contactbook, record, contact_name):
 
         match field:
             case "phone":
-                phone_to_remove = Prompt.ask(
-                    "[blue]Enter the phone number to remove[/blue]").strip()
-                if phone_to_remove in [p.value for p in record.phones]:
-                    record.remove_phone(phone_to_remove)
-                    field_removed = True
+                if len(record.phones) > 1:
+                    # ask user to specify which phone he wants to delete
+                    phone_to_remove = Prompt.ask(
+                        "[blue]Enter the phone number to remove[/blue]").strip()
+                    if phone_to_remove in [p.value for p in record.phones]:
+                        record.remove_phone(phone_to_remove)
+                        print(
+                            f"[bold green]Phone '{phone_to_remove}' has been successfully removed.[/bold green]")
+                        field_removed = True
+                    else:
+                        print(
+                            f"[bold red]{phone_to_remove} not found.[/bold red]")
+                elif len(record.phones) == 1:
+                    record.phones.pop()
+                    print(
+                        f"[bold green]Phone has been successfully removed.[/bold green]")
                 else:
-                    print(f"[bold red]{phone_to_remove} not found.[/bold red]")
+                    print(
+                        f"[bold red]No phones to remove.[/bold red]")
             case "email":
                 if record.email:
                     record.email = None
@@ -185,17 +193,22 @@ def remove_contact_field(contactbook, record, contact_name):
                         f"[bold red]No birthday set for {contact_name}.[/bold red]")
                 field_removed = True
             case "contact":
-                print(f"[bold red]Full record:\n{record}[/bold red]")
                 if ask_yes_no(f"Are you sure you want to delete {contact_name}?"):
                     contactbook.delete(contact_name)
                     print(
-                        f"[bold green]{contact_name} has been deleted.[/bold green]")
+                        f"[bold green]Contact {contact_name} has been deleted.[/bold green]")
                 else:
                     print("[bold red]Deletion cancelled.[/bold red]")
                 break
             case _:
                 print("[bold red]Unknown field. Try again.[/bold red]")
+                continue
 
+        if record.is_empty():
+            contactbook.delete(contact_name)
+            print(
+                f"[bold red]Contact {contact_name} doesn't have any data, entire contact was removed.[/bold red]")
+            return
         if field_removed and not ask_yes_no("Remove another field?"):
             break
 
@@ -211,15 +224,15 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
         case "exit":
             return "exit"
         case "add":
-            name = args[0]
+            name = args[0].capitalize()
             phone = args[1]
-            contactbook.add_contact(name, phone)
-            if name.value in contactbook.data:
+            if name in contactbook.data:
                 rich_console.print(
-                    f"[bold green]Phone {phone} added to {contact_name.value}'s record.[/bold green]")
+                    f"[bold green]Phone {phone} added to {name}'s record.[/bold green]")
             else:
                 rich_console.print(
-                    f"[bold green]Record for {contact_name.value} has been successfully created.[/bold green]")
+                    f"[bold green]Record for {name} has been successfully created.[/bold green]")
+            contactbook.add_contact(name, phone)
         case "add-birthday":
             add_contact_birthday(contactbook, args)
         case "add-address":
@@ -228,14 +241,14 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
             add_contact_email(contactbook, args)
         case "update":
             # update contact phone, email, address, birthday
-            contact_name = args[0]
+            contact_name = args[0].capitalize()
             if contact_name not in contactbook.data:
                 raise KeyError(f"Contact {contact_name} not found.")
             record = contactbook.find(contact_name)
             update_contact(record)
         case "remove":
             # remove contact phone (if phone is provided), email, address, birthday or delete contact by name
-            contact_name = args[0]
+            contact_name = args[0].capitalize()
             if contact_name not in contactbook.data:
                 raise KeyError(f"Contact {contact_name} not found.")
             record = contactbook.find(contact_name)
@@ -245,9 +258,9 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
             if not args:
                 raise ValueError(
                     "Contact name is required for 'show' command.")
-            contact_name = args[0]
+            contact_name = args[0].capitalize()
             record = contactbook.find(contact_name)
-            print(record)
+            utilities.show_contacts_list(record, contact_name)
         case "all":
             # return all records in the address book
             if contactbook.data:
@@ -257,11 +270,13 @@ def handle_contact_commands(contactbook: ContactBook, command: str, args: list):
                     "[bold red]There are no records in your address book. Start adding.[/bold red]")
 
         case "show-birthday":
-            contact_name = args[0]
+            contact_name = args[0].capitalize()
             record = contactbook.find(contact_name)
-            birthday = record.birthday
+            dob = record.birthday.value
+            # birthday = record.birthday
             print(
-                f"{contact_name}'s birthday is {birthday}" if birthday else f"{contact_name}'s birthday is not set.")
+                f"[white]{contact_name}'s[/white] [blue]birthday is[/blue] [white]{dob.strftime('%d %B')}[/white]"
+                if dob else f"[white]{contact_name}'s[white] [blue]birthday is not set.[/blue]")
         case "birthdays":
             days = int(args[0]) if args else None
             show_upcoming_birthdays(contactbook, days)

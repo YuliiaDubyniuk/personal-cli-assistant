@@ -1,8 +1,6 @@
-from pathlib import Path
 from rich.prompt import Prompt
 from decorators import input_error
 from notes.notes import NoteBook, Note, Title, Text, Tag
-from contacts.contacts import ContactBook
 import utilities
 
 
@@ -19,11 +17,13 @@ def handle_note_commands(notebook: NoteBook, command: str, args: list):
         case "add":
             title = utilities.get_validated_input("Enter title", Title)
             tags = utilities.get_validated_input(
-                "Enter tag(s) separated by [bold orange1]';'[/bold orange1] "
+                "Enter tag(s) separated by [bold orange1];[/bold orange1] "
                 "(press [bold orange1]Enter[/bold orange1] to skip)", Tag)
             text = utilities.get_validated_input("Enter text", Text)
             note = Note(title, text, tags)
             notebook.add_note(note)
+            utilities.rich_console.print(
+                f"[bold green]Note '{note.title}' added successfully.[/bold green]")
         case "update":
             result = handle_update_note(notebook, command)
             if result == "exit":
@@ -86,7 +86,7 @@ def handle_update_note(notebook: NoteBook, cmd):
         utilities.rich_console.print(
             "[bold red]No notes to update.[/bold red]")
         return
-    # Is Note object or command to cancel updating
+    # Can be Note object or command to cancel updating
     selection = utilities.select_note(notebook, cmd)
 
     if selection == "exit":
@@ -121,26 +121,38 @@ def handle_update_note(notebook: NoteBook, cmd):
                     utilities.rich_console.print(
                         f"[bold red]No tags to update.[/bold red]")
                     note_to_update.tags = utilities.get_validated_input(
-                        "Enter new tag to add", Tag)
-                    continue
-                tags = utilities.get_validated_input(
-                    "Enter tags separated by [bold orange1];[/bold orange1] (<old-tag> ; <new-tag>)", Tag)
-                if not tags or len(tags) != 2:
+                        "Enter tag(s) separated by [bold orange1];[/bold orange1]", Tag)
                     utilities.rich_console.print(
-                        "[bold red]Please enter exactly 2 tags: old; new.[/bold red]")
-                    continue
-                prev_tag = tags[0].value.lower()
-                if not any(t.value.lower() == prev_tag for t in note_to_update.tags):
-                    utilities.rich_console.print(
-                        f"[bold red]Note does not have '{prev_tag}' tag.[/bold red]")
-                    continue
-                new_tag = tags[1]
-                # update note tags by replacing old one with new
-                note_to_update.tags = [new_tag if t.value.lower() ==
-                                       prev_tag else t for t in note_to_update.tags]
-                utilities.rich_console.print(
-                    "[bold green]Tags successfully updated![/bold green]")
-                note_to_update.date = note_to_update.set_date()
+                        "[bold green]Tag(s) successfully added![/bold green]")
+                    note_to_update.date = note_to_update.set_date()
+                else:
+                    tags = utilities.get_validated_input(
+                        "Enter tags separated by [bold orange1];[/bold orange1] (<old-tag> ; <new-tag>)", Tag)
+                    if not tags or len(tags) < 2:
+                        utilities.rich_console.print(
+                            "[bold red]Please enter minimum 2 tags: old; new.[/bold red]")
+                        continue
+                    else:
+                        prev_tag = tags[0].value.lower()
+                        if not any(t.value.lower() == prev_tag for t in note_to_update.tags):
+                            utilities.rich_console.print(
+                                f"[bold red]Note does not have '{prev_tag}' tag.[/bold red]")
+                            continue
+                        else:
+                            new_tags = tags[1:]
+                            updated_tags = []
+                            for t in note_to_update.tags:
+                                if t.value.lower() == prev_tag:
+                                    # Replace the old tag with all new tag(s)
+                                    for nt in new_tags:
+                                        updated_tags.append(nt)
+                                else:
+                                    updated_tags.append(t)
+
+                            note_to_update.tags = updated_tags
+                            utilities.rich_console.print(
+                                "[bold green]Tags successfully updated![/bold green]")
+                            note_to_update.date = note_to_update.set_date()
             case "back":
                 break
             case "exit":
